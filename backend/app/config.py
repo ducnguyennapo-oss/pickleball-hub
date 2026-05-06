@@ -8,8 +8,17 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000"
 
-    # Database
+    # Database (Railway provides postgresql://, we need postgresql+asyncpg://)
     DATABASE_URL: str = "postgresql+asyncpg://pickleball_user:dev@localhost:5432/pickleball"
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def fix_database_url(cls, v: str) -> str:
+        if v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        return v
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
