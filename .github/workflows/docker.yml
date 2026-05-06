@@ -1,0 +1,32 @@
+name: Docker Build Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  docker-build:
+    name: Verify Docker Compose Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env for build check
+        run: |
+          cat > .env << EOF
+          DB_PASSWORD=ci_test_password
+          JWT_SECRET=ci_test_secret_64_chars_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+          JWT_REFRESH_SECRET=ci_refresh_secret_64_chars_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+          ENVIRONMENT=test
+          EOF
+
+      - name: Build Docker images
+        run: docker compose build --no-cache
+
+      - name: Verify services start
+        run: |
+          docker compose up -d postgres redis
+          sleep 15
+          docker compose ps
+          docker compose down

@@ -1,0 +1,40 @@
+version: "3.9"
+
+# Production overrides — use with: docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  postgres:
+    ports: []  # no external port in production
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}  # required, no default
+
+  redis:
+    ports: []
+    restart: always
+
+  backend:
+    build:
+      target: production
+    command: >
+      sh -c "alembic upgrade head &&
+             gunicorn app.main:app
+             -k uvicorn.workers.UvicornWorker
+             -w 2
+             --bind 0.0.0.0:8000
+             --timeout 120
+             --access-logfile -"
+    environment:
+      ENVIRONMENT: production
+    restart: always
+    volumes: []  # no volume mount in production — use baked image
+
+  frontend:
+    build:
+      target: production
+    command: node server.js
+    restart: always
+    volumes: []
+
+  nginx:
+    restart: always
