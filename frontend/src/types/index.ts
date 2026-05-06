@@ -36,6 +36,11 @@ export interface SlotDefinition {
   max_players: number;
 }
 
+export interface SlotPlayer {
+  id: string;
+  full_name: string;
+}
+
 export interface CourtSlot {
   id: string;
   slot_index: number;
@@ -45,6 +50,7 @@ export interface CourtSlot {
   max_players: number;
   current_players: number;
   status: "available" | "partial" | "full" | "closed";
+  players?: SlotPlayer[];
 }
 
 export interface CourtAvailability {

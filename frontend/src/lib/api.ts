@@ -8,14 +8,10 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// No auto-redirect on 401 — components handle unauthenticated state gracefully
 api.interceptors.response.use(
   (res) => res,
-  async (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default api;
